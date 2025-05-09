@@ -17,69 +17,63 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RestController
-@RequestMapping("/empleados")
-public class ControllerEmpleados {
+@RequestMapping("/ventas")
+public class ControllerVentas {
     
     @Autowired
-    RepositoryEmpleado repositoryEmpleado;
+    RepositoryVenta repositoryVenta;
     
     @GetMapping()
-    public List<Empleado> list() {
-        //repositoryEmpleado.findAll();
-        List<Empleado> lstEmpleados = repositoryEmpleado.findAll();
-
-        return lstEmpleados;
+    public List<Venta> list() {
+        return repositoryVenta.findAll();
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Empleado> get(@PathVariable Long id) {
-        Optional<Empleado> opt=repositoryEmpleado.findById(id);
-        if(opt.isPresent()){
-            Empleado emp=opt.get();
-            return ResponseEntity.ok(emp);
-        }else{
+    public ResponseEntity<Venta> get(@PathVariable Long id) {
+        Optional<Venta> opt = repositoryVenta.findById(id);
+        if (opt.isPresent()) {
+            return ResponseEntity.ok(opt.get());
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Empleado> put(@PathVariable Long id, @RequestBody Empleado input) {
-         Optional<Empleado> opt = repositoryEmpleado.findById(id);
+    public ResponseEntity<Venta> put(@PathVariable Long id, @RequestBody Venta input) {
+        Optional<Venta> opt = repositoryVenta.findById(id);
         if (opt.isPresent()) {
-            Empleado empExistente = opt.get();
+            Venta ventaExistente = opt.get();
+
+            ventaExistente.setFecha(input.getFecha());
+            ventaExistente.setMonto(input.getMonto());
+            ventaExistente.setCliente(input.getCliente());
             
-            empExistente.setNombre(input.getNombre());
-            empExistente.setDireccion(input.getDireccion());
-            empExistente.setTelefono(input.getTelefono());
-            
-            repositoryEmpleado.save(empExistente);
-            return ResponseEntity.ok(empExistente);
+            repositoryVenta.save(ventaExistente);
+            return ResponseEntity.ok(ventaExistente);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
     
     @PostMapping
-    public ResponseEntity<Empleado> post(@RequestBody Empleado input) {
-        Empleado empNew = repositoryEmpleado.save(input);
-        return ResponseEntity.ok(empNew);
+    public ResponseEntity<Venta> post(@RequestBody Venta input) {
+        Venta ventaNueva = repositoryVenta.save(input);
+        return ResponseEntity.ok(ventaNueva);
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-         Optional<Empleado> opt = repositoryEmpleado.findById(id);
+        Optional<Venta> opt = repositoryVenta.findById(id);
         if (opt.isPresent()) {
-            repositoryEmpleado.deleteById(id);
+            repositoryVenta.deleteById(id);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
-
     }
     
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Error message")
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Error inesperado en el servidor")
     public void handleError() {
     }
-    
 }
